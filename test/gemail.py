@@ -6,7 +6,7 @@ import error
 def fetch_activation_link(username, password, mailalias = None):
 
     #username is name of the user to login to gmail account, password is real password, mailalias is alias name for account
-    # typicaly: t3st3rk0w4lsk1@gmail.com is username and onelab_test0@onelab.eu is mailalias
+
     print("Fetching email from gmail server")
 
     mail = imaplib.IMAP4_SSL('imap.gmail.com')
