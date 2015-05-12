@@ -6,6 +6,7 @@ import test.user
 import test.page
 import test.piuser
 import test.institution
+import test.project
 from config import fakeuser, piuser
 
 
@@ -42,18 +43,28 @@ def simpletest(fakeemail=None, configuration=None):
 
     #test.user.signin(driver, fakeuser['email'], fakeuser['password'], config.portal['url'], testname, errordb, datadb, concurrent_users)
     #
-    test.user.create(driver, config.portal['url'], testname, fakeuser, 'Universite Pierre et Marie Curie', errordb, datadb, concurrent_users)
-    test.user.logout(driver)
-    test.piuser.validate_user(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-    test.user.logout(driver)
+    #test.user.create(driver, config.portal['url'], testname, fakeuser, 'Universite Pierre et Marie Curie', errordb, datadb, concurrent_users)
+    #test.user.logout(driver)
+    #test.piuser.validate_user(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    #test.user.logout(driver)
     #test.piuser.upgrade_user_to_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-
+    #test.user.logout(driver)
+    #test.user.signin(driver, fakeuser['email'], fakeuser['password'], config.portal['url'], testname, errordb, datadb, concurrent_users)
+    #test.user.logout(driver)
+    #test.user.is_pi(driver, config.portal['url'], fakeuser, testname, errordb, datadb, concurrent_users)
+    #test.user.logout(driver)
     #test.piuser.downgrade_user_from_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    #test.user.logout(driver)
+    #test.user.is_pi(driver, config.portal['url'], fakeuser, testname, errordb, datadb, concurrent_users)
     #test.user.logout(driver)
     #test.user.signin(driver, fakeuser['email'], fakeuser['password'], config.portal['url'], testname, errordb, datadb, concurrent_users)
     #test.piuser.delete_user(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users)
     #test.institution.create(driver, config.portal['url'], testname, config.institution, config.fakeuser, errordb, datadb, concurrent_users)
     #test.piuser.reject_institution(driver, config.portal['url'], piuser, config.institution, testname, errordb, datadb, concurrent_users)
+
+    #test.user.reset_password(driver, config.portal['url'],fakeuser, testname, errordb, datadb, concurrent_users)
+    test.user.signin(driver, fakeuser['email'], fakeuser['password'], config.portal['url'], testname, errordb, datadb, concurrent_users)
+    test.project.create(driver, config.portal['url'], config.project, testname, errordb, datadb, concurrent_users)
 
     setup.environment.clean(driver)
 
