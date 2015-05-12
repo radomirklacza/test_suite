@@ -88,7 +88,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         error.save_and_quit(message, url, testname, driver, errordb)
     elif driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]") > 0:
         message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.create')
-        error.save_html(driver.page_source, testname)
+        #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errordb)
 
     exec_time = datetime.datetime.now() - time_now
@@ -118,10 +118,12 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         message = "[%s] TEST FAILED with error: I was not able to read email link." % (str(__name__)+'.create')
         error.save_and_quit(message,url, testname, driver, errordb)
 
+    # TODO replace with load() - what text is expected?
     try:
         driver.get(link)
     except:
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.create')
+        #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errordb)
 
     print("SUCCESS: User has been created")
@@ -140,7 +142,59 @@ def is_pi(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
     print("Checking if user is PI")
 
     signin(driver, fakeuser['email'], fakeuser['password'], url, testname, errordb, datadb, concurrent_users)
-    url += '/portal/account'
-    page.load(driver,url, testname, errordb, datadb, "//*[contains(text(), 'Authority')]", 'xpath', concurrent_users)
+    url += '/portal/user/'+fakeuser['email']
 
-    return
+    #page.load(driver, url, testname, errordb, datadb, "//*[contains(text(), 'User Account')]", 'xpath', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'User Account', 'link_text', concurrent_users)
+    try:
+        element = driver.find_element_by_link_text('User Account')
+        print("Found 'User Account'")
+        element.click()
+    except:
+        message = "[%s] TEST FAILED: could not find 'User Account' link for: %s" % (str(__name__)+'.is_pi', fakeuser['email'])
+        error.save_and_quit(message, url, testname, driver, errordb)
+
+    try:
+        #driver.find_element_by_xpath("//button[contains(@name,'dl_onelab.')]")
+        driver.find_element_by_xpath("//button[contains(@oldtitle,'Download Authority Credentials')]")
+        print('User is PI')
+        return True
+    except:
+        print("User is not PI")
+        return False
+
+def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
+    print("Reseting users password")
+
+    url += '/portal/pass_reset/'
+    page.load(driver, url, testname, errordb, datadb, "//h3[text()='Welcome to the secured password reset wizard']", 'xpath', concurrent_users)
+
+    try:
+        email = driver.find_element_by_name("email")
+        email.send_keys(fakeuser['email'])
+        element = driver.find_element_by_xpath("//input[contains(@value,'Reset my password')]")
+        element.click()
+    except:
+        message = "[%s] TEST FAILED: could not find proper from to input email address, url: %s" % (str(__name__)+'.reset_password', url)
+        error.save_and_quit(message, url, testname, driver, errordb)
+
+    driver.wait = ui.WebDriverWait(driver, 5)
+    try:
+        driver.wait.until(lambda driver: driver.find_element_by_xpath("//h3[text()='Welcome to the secured password reset wizard']"))
+        message = None
+    except:
+        message = "[%s] TEST FAILED: processing email reset request failed for user: %s" % (str(__name__)+'.reset_password', fakeuser['email'])
+
+    try:
+        driver.wait.until(lambda driver: driver.find_element_by_xpath("//li[text()=\"That email address doesn't have an associated user account. Are you sure you've registered?\"]"))
+        message = "[%s] TEST FAILED: email has been reported as not existing in database: %s" % (str(__name__)+'.reset_password', fakeuser['email'])
+    except:
+        message = None
+
+    if message:
+        error.save_and_quit(message, url, testname, driver, errordb)
+    else:
+        print("[%s] OK - Reseting users password for user: %s" % (str(__name__)+'.reset_password', fakeuser['email']))
+        return
+
+

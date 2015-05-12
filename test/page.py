@@ -16,7 +16,7 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, us
         driver.get(url)
     except:
         message = "[%s] TEST FAILED with error: I was not able to load page: %s" % (str(__name__)+'.load', url)
-        error.save_html(driver.page_source, testname)
+        #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errodb)
 
     # waiting link to appear
@@ -29,7 +29,7 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, us
                 message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.load')
             else:
                 message = "[%s] TEST FAILED with error: I was not able to locate element: %s" % (str(__name__)+'.load', expected_text)
-            error.save_html(driver.page_source, testname)
+            #error.save_error(driver, driver.page_source, testname)
             error.save_and_quit(message, url, testname, driver, errodb)
 
     elif expected_type == 'xpath':
@@ -41,13 +41,14 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, us
                 message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.load')
             else:
                 message = "[%s] TEST FAILED with error: I was not able to locate element: %s" % (str(__name__)+'.load', expected_text)
-            error.save_html(driver.page_source, testname)
+            #error.save_error(driver, driver.page_source, testname)
             error.save_and_quit(message, url, testname, driver, errodb)
 
     else:
         print("Could not identify type of searched element: %s " % (expected_type))
 
     exec_time = datetime.datetime.now() - time
+    print("Page loaded successfully")
     if (datadb):
         influx.savedata("load_time", exec_time.total_seconds(), datadb, url, testname, users)
     print ("Time to open %s: %f [s]" % (url, exec_time.total_seconds()))
@@ -85,7 +86,7 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
         user_exist = 1
     except:
         message = "could not find user on the list: %s " % (fakeuser['email'])
-        error.save_html(driver.page_source, testname)
+        #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errordb)
 
     # run action
@@ -93,7 +94,7 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
         driver.find_element_by_id(button_id).click()
     except:
         message = "I was not able to find and click button: %s" % button_id
-        error.save_html(driver.page_source, testname)
+        #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errordb)
 
     # TODO - wait for results - handle JS popup
