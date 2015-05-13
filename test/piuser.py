@@ -19,14 +19,14 @@ def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=
     try:
         driver.find_element_by_xpath("//tr//td//a[text() = '%s']/../preceding-sibling::td//input[@type = 'checkbox']" % (fakeuser['email'])).click()
     except:
-        message = "could not find user on the list: %s " % (fakeuser['email'])
+        message = "[%s] TEST FAILED with error: could not find user on the list: %s " % (str(__name__)+'.validate_user', fakeuser['email'])
         error.save_and_quit(message, url, testname, driver, errordb)
 
     #... and click validate button
     try:
         driver.find_element_by_id('portal__validate').click()
     except:
-        message = "I was not able to find and click 'Validate' button... something wrong"
+        message = "[%s] TEST FAILED with error: I was not able to find and click 'Validate' button... something wrong" % (str(__name__)+'.validate_user')
         error.save_and_quit(message, url, testname, driver, errordb)
 
     print("SUCCESS: User has been validated")
@@ -49,7 +49,7 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
         driver.find_element_by_xpath("//tr//td//b[text() = '%s']/../preceding-sibling::td//input[@type = 'checkbox']" % (institution['name'])).click()
         exist = 1
     except:
-        message = "could not find institution on the list: %s " % (institution['name'])
+        message = "[%s] TEST FAILED with error: could not find institution on the list: %s " % (str(__name__)+'.reject_institution', institution['name'])
         error.save_and_quit(message, url, testname, driver, errordb)
 
     #... and click validate button
@@ -70,7 +70,7 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
             exist = 0
 
     if (exist):
-        message = "FAILED: institution has NOT been rejected"
+        message = "[%s] TEST FAILED with error: FAILED: institution has NOT been rejected" % (str(__name__)+'.reject_institution')
         error.save_and_quit(message, url, testname, driver, errordb)
     else:
         print("SUCCESS: institution has been rejected")
