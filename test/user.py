@@ -28,7 +28,7 @@ def signin(driver, user,  paswd, url, testname, errodb=None, datadb=None, users=
     try:
         # waiting 20 seconds until user login and get information about his slice list
         driver.wait = ui.WebDriverWait(driver, 10)
-        driver.wait.until(lambda driver: driver.find_elements_by_xpath("//*[contains(text(), 'Services Status')]"))
+        driver.wait.until(lambda driver: driver.find_elements_by_xpath("//*[contains(text(), 'Your projects and slices')]"))
         exec_time =  datetime.datetime.now() - time_now
     except:
         driver.wait = ui.WebDriverWait(driver, 3)
