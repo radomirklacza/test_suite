@@ -8,9 +8,12 @@ def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=
     print("Validating user")
 
     ## first we need to login as PI:
-    user.signin(driver,piuser['email'], piuser['password'], url, testname, errordb, datadb, users)
+    user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users)
+
+    page.load_main_page(driver, url, testname, errordb, datadb, users)
 
     print("Go to validation page")
+
     url = url+'/portal/institution#requests'
     page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
 
@@ -38,6 +41,8 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
     print("Rejecting institution")
 
     user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users)
+
+    page.load_main_page(driver, url, testname, errordb, datadb, users)
 
     url += '/portal/institution#requests'
     page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
