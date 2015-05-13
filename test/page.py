@@ -72,11 +72,11 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
     # sign-in as PI
     print("Running action: %s" % action)
     user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, concurrent_users)
-
+    load(driver, url, testname, errordb, datadb, "//*[contains(text(), 'Your projects and slices')]", 'xpath', 'main_page' , concurrent_users)
     print("Go to users management page")
     url += '/portal/institution#users'
     search_for = "//input[@data-email='%s']" % (piuser['email'])
-    load(driver, url, testname, errordb, datadb, search_for, 'xpath', concurrent_users)
+    load(driver, url, testname, errordb, datadb, search_for, 'xpath', 'institution_users' , concurrent_users)
 
     print("Searching user: %s" % (fakeuser['email']))
 
