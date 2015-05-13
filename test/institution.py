@@ -10,7 +10,7 @@ def create(driver, url, testname, institution, fakeuser, errordb, datadb, concur
     print('Creating new institution')
 
     url += '/portal/join'
-    page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link', 'main-page', concurrent_users)
 
     try:
         # institution side
@@ -43,8 +43,9 @@ def create(driver, url, testname, institution, fakeuser, errordb, datadb, concur
         agreement = driver.find_element_by_name("agreement")
         agreement.click()
 
+        button = driver.find_element_by_xpath("//button[@type='submit']")
         time = datetime.datetime.now()
-        driver.find_element_by_class('btn btn-onelab').click()
+        button.click()
     except:
         message = "[%s] TEST FAILED with error: I was not able to properly fill the form on: %s" % (str(__name__)+'.create', url)
         error.save_and_quit(message, url, testname, driver, errordb)

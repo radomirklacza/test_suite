@@ -11,7 +11,7 @@ import gemail
 def signin(driver, user,  paswd, url, testname, errodb=None, datadb=None, users=1):
 
     # first load main page
-    page.load(driver, url, testname, errodb, datadb, 'Can\'t access your account?', 'link_text', users)
+    page.load(driver, url, testname, errodb, datadb, 'Can\'t access your account?', 'link_text','signin_page', users)
 
     # fill up login form
     print("Singining in user")
@@ -50,7 +50,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
 
     # load page
     url = url+'/register'
-    page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link_text', users)
+    page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link_text','create_user', users)
 
     try:
         firstname = driver.find_element_by_name("firstname")
@@ -98,6 +98,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
 
     print("Processing the user account request: %s " % (str(exec_time.total_seconds())))
 
+    # TODO #1 - clean up the code needed - for now it is copy paste
     # confirm account with gmail
     try:
         a = 0
@@ -130,6 +131,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
 
 def logout(driver):
     print("logging off")
+
     try:
         driver.find_element_by_id('logout').click()
         driver.switch_to_alert().accept()
@@ -145,7 +147,7 @@ def is_pi(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
     url += '/portal/user/'+fakeuser['email']
 
     #page.load(driver, url, testname, errordb, datadb, "//*[contains(text(), 'User Account')]", 'xpath', concurrent_users)
-    page.load(driver, url, testname, errordb, datadb, 'User Account', 'link_text', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'User Account', 'link_text', 'user_account_details', concurrent_users)
     try:
         element = driver.find_element_by_link_text('User Account')
         print("Found 'User Account'")
@@ -167,7 +169,7 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
     print("Reseting users password")
 
     url += '/portal/pass_reset/'
-    page.load(driver, url, testname, errordb, datadb, "//h3[text()='Welcome to the secured password reset wizard']", 'xpath', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, "//h3[text()='Welcome to the secured password reset wizard']", 'xpath', 'password_reset', concurrent_users)
 
     try:
         email = driver.find_element_by_name("email")
@@ -193,8 +195,36 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
 
     if message:
         error.save_and_quit(message, url, testname, driver, errordb)
-    else:
-        print("[%s] OK - Reseting users password for user: %s" % (str(__name__)+'.reset_password', fakeuser['email']))
-        return
+
+    # TODO #1 - clean up the code needed - for now it is copy paste
+    # confirm account with gmail
+    try:
+        a = 0
+        while a < 5: # I try to fetch email 5 times (25s in total):
+            try:
+                link = gemail.fetch_reset_link(fakeuser['trueemail'], fakeuser['password'], fakeuser['email'])
+                if link:
+                    print("validation link: %s " % link)
+                    break
+                else:
+                    print("waiting...")
+                    a = a+1
+                    t.sleep(5)
+            except:
+                a = a+1
+                t.sleep(5)
+    except:
+        message = "[%s] TEST FAILED with error: I was not able to read email link." % (str(__name__)+'.reset_password')
+        error.save_and_quit(message,url, testname, driver, errordb)
+
+    # TODO replace with load() - what text is expected?
+    try:
+        driver.get(link)
+    except:
+        message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.reset_password')
+        error.save_and_quit(message, url, testname, driver, errordb)
+
+    print("[%s] OK - Reseting password for user: %s" % (str(__name__)+'.reset_password', fakeuser['email']))
+    return
 
 

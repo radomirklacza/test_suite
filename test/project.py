@@ -8,11 +8,13 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
     print("Creating project")
 
     url += '/portal/project_request/'
-    page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'text_link', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'text_link', 'create_user',concurrent_users)
     try:
-        projectname = driver.find_element_by_name('project_name')
-        projectname.send_keys(project['name']+'_'+t.time())
-        purpose = driver.find_element_by_name('purpose')
+        p = project['name'] + "_" + str(t.time())
+        print p
+        projectname = driver.find_element_by_name("project_name")
+        projectname.send_keys(p)
+        purpose = driver.find_element_by_name("purpose")
         purpose.send_keys(project['description'])
         button = driver.find_element_by_xpath("//button[@type='submit']")
         time_now = datetime.datetime.now()
@@ -27,7 +29,7 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
         if by_piuser:
             driver.wait.until(lambda driver: driver.find_element_by_xpath("//h1[text()='Success']"))
         else:
-            driver.wait.until(lambda driver: driver.find_element_by_xpath("//h1[text()='Success']"))
+            driver.wait.until(lambda driver: driver.find_element_by_xpath("//h1[text()='Project request sent']"))
         exec_time =  datetime.datetime.now() - time_now
     except:
         message = "[%s] TEST FAILED: processing new project creation failed for project: %s" % (str(__name__)+'.create', project['name'])
@@ -36,5 +38,3 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
     if datadb:
         influx.savedata("project_create", exec_time.total_seconds(), datadb, url, testname, concurrent_users)
     print ("[%s] OK - Time to process project request: %f [s]" % (str(__name__)+'.create', exec_time.total_seconds()))
-
-

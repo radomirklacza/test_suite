@@ -6,7 +6,7 @@ import influx
 import user
 
 #this function only to load portal main page
-def load(driver, url, testname, errodb, datadb, expected_text, expected_type, users = 1 ):
+def load(driver, url, testname, errodb, datadb, expected_text, expected_type, page_id , users = 1 ):
     print("Loading url: %s " % (url))
 
     # wait at maximum 10 seconds, then raise an exception

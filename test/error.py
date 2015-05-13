@@ -22,7 +22,7 @@ def save_error(driver, testname):
     f.write((driver.page_source).encode('utf-8'))
     f.close()
     print("HTML File location with error: %s" % filename+'.html')
-    driver.save_screenshot(dir+filename+'png')
+    driver.save_screenshot(dir+filename+'.png')
     print("HTML File location with error: %s" % filename+'.png')
     return filename
 

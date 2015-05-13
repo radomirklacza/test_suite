@@ -12,7 +12,7 @@ def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=
 
     print("Go to validation page")
     url = url+'/portal/institution#requests'
-    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', users)
+    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
 
     print("Validating user: %s" % (fakeuser['email']))
     # find user on the list
@@ -40,7 +40,7 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
     user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users)
 
     url += '/portal/institution#requests'
-    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', users)
+    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
 
     print("Rejecting institution: %s" % (institution['name']))
 
@@ -62,7 +62,7 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
     counter = 5
     while (exist==1) and (counter > 0):
         t.sleep(3)
-        page.load(driver, url, testname, errordb, datadb, '//h2[text() = \'From your authorities\']','xpath', users)
+        page.load(driver, url, testname, errordb, datadb, '//h2[text() = \'From your authorities\']','xpath','pending_requests', users)
         try:
             driver.find_element_by_xpath("//tr//td//b[text() = '%s']" % (institution['name']))
             counter-=1
