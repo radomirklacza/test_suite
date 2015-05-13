@@ -10,7 +10,7 @@ def create(driver, url, testname, institution, fakeuser, errordb, datadb, concur
     print('Creating new institution')
 
     url += '/portal/join'
-    page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link', 'main-page', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link_text', 'main-page', concurrent_users)
 
     try:
         # institution side
