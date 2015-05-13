@@ -122,6 +122,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
     # TODO replace with load() - what text is expected?
     try:
         driver.get(link)
+        driver.get('https://portal.onelab.eu/')
     except:
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.create')
         #error.save_error(driver, driver.page_source, testname)
