@@ -1,5 +1,4 @@
 import datetime
-import time as t
 import selenium.webdriver.support.ui as ui
 import error
 import influx
