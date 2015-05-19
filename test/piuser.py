@@ -5,37 +5,14 @@ import time as t
 
 ## validating user (we will validate fakeuser by piuser)
 def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
-    print("Validating user")
-
-    ## first we need to login as PI:
-    user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users)
-
-    page.load_main_page(driver, url, testname, errordb, datadb, users)
-
-    print("Go to validation page")
-
-    url = url+'/portal/institution#requests'
-    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
-
-    print("Validating user: %s" % (fakeuser['email']))
-    # find user on the list
-    try:
-        driver.find_element_by_xpath("//tr//td//a[text() = '%s']/../preceding-sibling::td//input[@type = 'checkbox']" % (fakeuser['email'])).click()
-    except:
-        message = "[%s] TEST FAILED with error: could not find user on the list: %s " % (str(__name__)+'.validate_user', fakeuser['email'])
-        error.save_and_quit(message, url, testname, driver, errordb)
-
-    #... and click validate button
-    try:
-        driver.find_element_by_id('portal__validate').click()
-    except:
-        message = "[%s] TEST FAILED with error: I was not able to find and click 'Validate' button... something wrong" % (str(__name__)+'.validate_user')
-        error.save_and_quit(message, url, testname, driver, errordb)
-
-    print("SUCCESS: User has been validated")
+    error.notify("Validating user", url, testname, errordb)
+    page.requests_action('validate_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
     return
 
-
+def reject_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+    error.notify("Rejecting user", url, testname, errordb)
+    page.requests_action('reject_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    return
 
 def reject_institution(driver, url, piuser, institution, testname, errordb=None, datadb=None, users = 1):
     print("Rejecting institution")

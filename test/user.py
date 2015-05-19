@@ -93,7 +93,8 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         error.notify("Registration completed successfully", url, testname, errordb)
     elif driver.find_elements_by_xpath("//*[contains(text(), 'Email already registered.')]"):
         message = "[%s] TEST FAILED with error: Email address already registered %s" % (str(__name__)+'.create', fakeuser['email'])
-        error.save_and_quit(message, url, testname, driver, errordb)
+        return 1
+        #error.save_and_quit(message, url, testname, driver, errordb)
     elif driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]") > 0:
         message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.create')
         #error.save_error(driver, driver.page_source, testname)
