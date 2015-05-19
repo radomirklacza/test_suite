@@ -4,6 +4,7 @@ import datetime
 import page
 import error
 import influx
+import gemail
 
 
 def create(driver, url, testname, institution, fakeuser, errordb, datadb, concurrent_users):
@@ -11,6 +12,8 @@ def create(driver, url, testname, institution, fakeuser, errordb, datadb, concur
 
     url += '/portal/join'
     page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link_text', 'main-page', concurrent_users)
+
+    gemail.delete_all_emails(fakeuser['trueemail'], fakeuser['password'], fakeuser['email'])
 
     try:
         # institution side

@@ -7,7 +7,7 @@ import user
 
 #this function only to load portal main page
 def load(driver, url, testname, errodb, datadb, expected_text, expected_type, page_id , users = 1 ):
-    print("Loading url: %s " % (url))
+    error.notify("Loading url: %s " % (url), url, testname, errodb)
 
     # wait at maximum 10 seconds, then raise an exception
     driver.wait = ui.WebDriverWait(driver, 20)
@@ -22,7 +22,7 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, pa
     # waiting link to appear
     if expected_type == 'link_text':
         try:
-            print("looking for: ", expected_text)
+            #print("looking for: ", expected_text)
             driver.wait.until(lambda driver: driver.find_element_by_link_text(expected_text))
         except:
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
@@ -34,7 +34,7 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, pa
 
     elif expected_type == 'xpath':
         try:
-            print("looking for xpath: ", expected_text)
+            #print("looking for xpath: ", expected_text)
             driver.wait.until(lambda driver: driver.find_element_by_xpath(expected_text))
         except:
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
@@ -45,13 +45,13 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, pa
             error.save_and_quit(message, url, testname, driver, errodb)
 
     else:
-        print("Could not identify type of searched element: %s " % (expected_type))
+        error.notify("Could not identify type of searched element: %s " % (expected_type), url, testname, errodb)
 
     exec_time = datetime.datetime.now() - time
-    print("Page loaded successfully")
+    error.notify("Page loaded successfully", url, testname, errodb)
     if (datadb):
         influx.savedata("load_time", exec_time.total_seconds(), datadb, url, testname, users)
-    print ("Time to open %s: %f [s]" % (url, exec_time.total_seconds()))
+    error.notify("Time to open %s: %f [s]" % (url, exec_time.total_seconds()), url, testname, errodb)
 
     return
 
@@ -70,38 +70,48 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
         error.save_and_quit(message, url, testname, driver, errordb)
 
     # sign-in as PI
-    print("Running action: %s" % action)
+    error.notify("Running action: %s" % action, url, testname, errordb)
     user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, concurrent_users)
 
     load_main_page(driver, url, testname, errordb, datadb, concurrent_users)
 
-    print("Go to users management page")
+    error.notify("Go to users management page", url, testname, errordb)
     url += '/portal/institution#users'
     search_for = "//input[@data-email='%s']" % (piuser['email'])
     load(driver, url, testname, errordb, datadb, search_for, 'xpath', 'institution_users' , concurrent_users)
 
-    print("Searching user: %s" % (fakeuser['email']))
+    error.notify("Searching user: %s" % (fakeuser['email']), url, testname, errordb)
 
     # find user on the list
     try:
         driver.find_element_by_xpath("//input[@data-email='%s']" % (fakeuser['email'])).click()
         user_exist = 1
     except:
-        message = "could not find user on the list: %s " % (fakeuser['email'])
-        #error.save_error(driver, driver.page_source, testname)
+        message = "[%s] TEST FAILED with error: I could not find user on the list: %s " % (str(__name__)+'.'+str(action), fakeuser['email'])
         error.save_and_quit(message, url, testname, driver, errordb)
 
     # run action
     try:
         driver.find_element_by_id(button_id).click()
     except:
-        message = "I was not able to find and click button: %s" % button_id
-        #error.save_error(driver, driver.page_source, testname)
+        message = "[%s] TEST FAILED with error: I was not able to find and click button: %s" % (str(__name__)+'.'+str(action), button_id)
         error.save_and_quit(message, url, testname, driver, errordb)
 
-    # TODO - wait for results - handle JS popup
+    # Wait for results and handle JS popup message with result message
+    try:
+        driver.wait = ui.WebDriverWait(driver, 20)
+        js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']"))
+    except:
+        message = "[%s] TEST FAILED with error: 20s was not enough to process request %s for user: %s " % (str(__name__)+'.'+str(action), str(action), fakeuser['email'])
+        error.save_and_quit(message, url, testname, driver, errordb)
 
-    print("SUCCESS: Action: %s was completed successfully:" % action)
+    if 'No action: User had no rights on:' in js_message.text:
+        error.notify('User was NOT PI, message: %s' % js_message.text)
+    elif ('Success:')  in js_message.text:
+        error.notify("SUCCESS: Action: %s was completed successfully with message: '%s'" % (action, js_message.text), url, testname, errordb)
+    else:
+        message = "[%s] TEST FAILED for action %s with error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message.text)
+        error.save_and_quit(message, url, testname, driver, errordb)
     return
 
 def requests_action():

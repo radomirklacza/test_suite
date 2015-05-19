@@ -1,3 +1,5 @@
+import error
+
 
 def savedata(action, execution_time, database, url, testname, users):
     print("Testname: %s" % (testname))
@@ -11,7 +13,7 @@ def savedata(action, execution_time, database, url, testname, users):
         ]
         #print(data)
         database.write_points(data)
-        print "data sent to db: "
+        #print "data sent to db: "
 
 #this function should save the results and errors into influxdb
 def saveerror(errmesage, database, url, testname):
@@ -25,5 +27,5 @@ def saveerror(errmesage, database, url, testname):
         ]
         #print(data)
         database.write_points(data)
-        print "error sent to db: "
+        #print "data sent to db: "
 

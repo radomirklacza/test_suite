@@ -9,7 +9,7 @@ def fetch_activation_link(username, password, mailalias = None):
 
     #username is name of the user to login to gmail account, password is real password, mailalias is alias name for account
 
-    print("Fetching email from gmail server")
+    error.notify("Fetching user activation link from gmail server")
 
     mail = imaplib.IMAP4_SSL('imap.gmail.com')
     if (mailalias is None):
@@ -37,7 +37,7 @@ def fetch_reset_link(username, password, mailalias = None):
 
     #username is name of the user to login to gmail account, password is real password, mailalias is alias name for account
 
-    print("Fetching email from gmail server")
+    error.notify("Fetching password reset link from gmail server")
 
     mail = imaplib.IMAP4_SSL('imap.gmail.com')
     if (mailalias is None):
@@ -59,3 +59,20 @@ def fetch_reset_link(username, password, mailalias = None):
             if ('password' in l):
                 return l
     return None
+
+def delete_all_emails(username, password, mailalias = None):
+
+    mail = imaplib.IMAP4_SSL('imap.gmail.com')
+    if (mailalias is None):
+        mailalias = username
+
+    error.notify("Deleting all emails for user: %s" % (mailalias))
+
+    mail.login(username, password)
+    mail.select("inbox")
+
+    result, data = mail.search(None,'(TO "%s")' % mailalias )
+    ids = data[0] # data is a list.
+    id_list = ids.split() # ids is a space separated string
+    for item in id_list:
+        mail.store(item, '+FLAGS', '\\Deleted') # delete this email

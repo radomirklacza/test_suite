@@ -86,20 +86,16 @@ def delete_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=No
 
     print("Deleting user")
     page.users_action('delete_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-    # TODO - this is work around to delete user completely - capture the popup js message
-    t.sleep(7)
     return
 
 def upgrade_user_to_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
 
     print("Upgrading user to PI")
     page.users_action('upgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-    t.sleep(10)
     return
 
 def downgrade_user_from_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
 
     print("Downgrading user")
     page.users_action('downgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-    t.sleep(15)
     return

@@ -6,10 +6,10 @@ import time as t
 from setup import environment
 
 
-def save_and_quit(message, url, testname, driver, errodb = None ):
+def save_and_quit(message, url, testname, driver, errordb = None ):
     save_error(driver, testname)
-    if (errodb):
-        influx.saveerror(message, errodb, url, testname)
+    if (errordb):
+        influx.saveerror("ERROR: " + str(message), errordb, url, testname)
     print(message)
     environment.clean(driver)
     exit()
@@ -26,3 +26,8 @@ def save_error(driver, testname):
     print("HTML File location with error: %s" % filename+'.png')
     return filename
 
+def notify(message, url = None, testname = None, errordb = None):
+    print(str(message))
+    if (errordb):
+        influx.saveerror("NOTIFY: " + str(message), errordb, url, testname)
+    return

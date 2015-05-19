@@ -1,5 +1,5 @@
 import selenium.webdriver.support.ui as ui
-import datetime
+from datetime import datetime
 import time as t
 import page
 import influx
@@ -14,14 +14,14 @@ def signin(driver, user,  paswd, url, testname, errodb=None, datadb=None, users=
     page.load(driver, url, testname, errodb, datadb, 'Can\'t access your account?', 'link_text','signin_page', users)
 
     # fill up login form
-    print("Singining in user")
+    error.notify("Singining in user", url, testname, errodb)
     email = driver.find_element_by_name("username")
     email.send_keys(user)
     password = driver.find_element_by_name("password")
     password.send_keys(paswd)
 
     # ... and submit the form
-    time_now = datetime.datetime.now()
+    time_now = datetime.now()
     password.submit()
 
     # wait for resluts
@@ -29,7 +29,7 @@ def signin(driver, user,  paswd, url, testname, errodb=None, datadb=None, users=
         # waiting 20 seconds until user login and get information about his slice list
         driver.wait = ui.WebDriverWait(driver, 10)
         driver.wait.until(lambda driver: driver.find_elements_by_xpath("//*[contains(text(), 'Your projects and slices')]"))
-        exec_time =  datetime.datetime.now() - time_now
+        exec_time =  datetime.now() - time_now
     except:
         driver.wait = ui.WebDriverWait(driver, 3)
         # check if login/password are correct
@@ -42,16 +42,22 @@ def signin(driver, user,  paswd, url, testname, errodb=None, datadb=None, users=
     # save data into influx portal
     if datadb:
         influx.savedata("signin", exec_time.total_seconds(), datadb, url, testname, users)
-    print ("Time to signin to portal %f [s]" % (exec_time.total_seconds()))
+    error.notify("Time to signin to portal %f [s]" % (exec_time.total_seconds()), url, testname, errodb)
 
 
 def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=None, users=1):
-    print("Running module: create fake user")
+
+    error.notify("Running module: create user", url, testname, errordb)
 
     # load page
     url = url+'/register'
     page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link_text','create_user', users)
 
+    # delete all old emails for this alias
+    gemail.delete_all_emails(fakeuser['trueemail'], fakeuser['password'], fakeuser['email'])
+
+    # fil ou the registration form
+    error.notify("Filling up user form on registration page", url, testname, errordb)
     try:
         firstname = driver.find_element_by_name("firstname")
         firstname.send_keys(fakeuser['firstname'])
@@ -69,9 +75,11 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         org.click()
         organisation = "//li[text() = '"+organisation+"']"
         org = driver.find_element_by_xpath(organisation).click()
-        time_now = datetime.datetime.now()
+        time_now = datetime.now()
         password.submit()
-    except:
+        #error.notify("Submit user form on registration page", url, testname, errordb)
+    except Exception, e:
+
         message = "[%s] TEST FAILED with error: I was not able to properly fill the form on: %s" % (str(__name__)+'.create', url)
         error.save_and_quit(message, url, testname, driver, errordb)
 
@@ -82,7 +90,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         error.save_and_quit(message, url, testname, driver, errordb)
 
     if driver.find_elements_by_xpath("//*[contains(text(), 'Sign up information received')]"):
-        print("Registration completed successfully")
+        error.notify("Registration completed successfully", url, testname, errordb)
     elif driver.find_elements_by_xpath("//*[contains(text(), 'Email already registered.')]"):
         message = "[%s] TEST FAILED with error: Email address already registered %s" % (str(__name__)+'.create', fakeuser['email'])
         error.save_and_quit(message, url, testname, driver, errordb)
@@ -91,14 +99,13 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errordb)
 
-    exec_time = datetime.datetime.now() - time_now
+    exec_time = datetime.now() - time_now
 
     if (datadb):
         influx.savedata("create_user_form_submit", exec_time.total_seconds(), datadb, url, testname, users)
+    error.notify("Processing the user account request: %s " % (str(exec_time.total_seconds())), url, testname, errordb)
 
-    print("Processing the user account request: %s " % (str(exec_time.total_seconds())))
-
-    # TODO #1 - clean up the code needed - for now it is copy paste
+    # TODO - clean up the code needed - for now it is copy paste
     # confirm account with gmail
     try:
         a = 0
@@ -106,7 +113,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
             try:
                 link = gemail.fetch_activation_link(fakeuser['trueemail'], fakeuser['password'], fakeuser['email'])
                 if link:
-                    print("validation link: %s " % link)
+                    error.notify("validation link: %s " % link, url, testname, errordb)
                     break
                 else:
                     print("waiting...")
@@ -121,28 +128,29 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
 
     # TODO replace with load() - what text is expected?
     try:
+        error.notify("Validating user with link: %s" % link, url, testname, errordb)
         driver.get(link)
         driver.get('https://portal.onelab.eu/')
     except:
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.create')
         #error.save_error(driver, driver.page_source, testname)
         error.save_and_quit(message, url, testname, driver, errordb)
-
-    print("SUCCESS: User has been created")
+    error.notify("User successfully validated with link: %s" % link, url, testname, errordb)
+    error.notify("User has been created", url, testname, errordb)
 
 def logout(driver):
-    print("logging off")
+    error.notify("logging off")
 
     try:
         driver.find_element_by_id('logout').click()
         driver.switch_to_alert().accept()
         driver.switch_to.window
     except:
-        print("I was not able to logout (could not find the button?)")
+        error.notify("I was not able to logout (could not find the button?)")
     return
 
 def is_pi(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
-    print("Checking if user is PI")
+    error.notify("Checking if user is PI", url, testname, errordb)
 
     signin(driver, fakeuser['email'], fakeuser['password'], url, testname, errordb, datadb, concurrent_users)
     url += '/portal/user/'+fakeuser['email']
@@ -151,7 +159,7 @@ def is_pi(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
     page.load(driver, url, testname, errordb, datadb, 'User Account', 'link_text', 'user_account_details', concurrent_users)
     try:
         element = driver.find_element_by_link_text('User Account')
-        print("Found 'User Account'")
+        error.notify("Found 'User Account'", url, testname, errordb)
         element.click()
     except:
         message = "[%s] TEST FAILED: could not find 'User Account' link for: %s" % (str(__name__)+'.is_pi', fakeuser['email'])
@@ -160,14 +168,14 @@ def is_pi(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
     try:
         #driver.find_element_by_xpath("//button[contains(@name,'dl_onelab.')]")
         driver.find_element_by_xpath("//button[contains(@oldtitle,'Download Authority Credentials')]")
-        print('User is PI')
+        error.notify('User is PI', url, testname, errordb)
         return True
     except:
-        print("User is not PI")
+        error.notify("User is not PI", url, testname, errordb)
         return False
 
 def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_users):
-    print("Reseting users password")
+    error.notify("Reseting users password", url, testname, errordb)
 
     url += '/portal/pass_reset/'
     page.load(driver, url, testname, errordb, datadb, "//h3[text()='Welcome to the secured password reset wizard']", 'xpath', 'password_reset', concurrent_users)
@@ -205,10 +213,10 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
             try:
                 link = gemail.fetch_reset_link(fakeuser['trueemail'], fakeuser['password'], fakeuser['email'])
                 if link:
-                    print("validation link: %s " % link)
+                    error.notify("validation link: %s " % link, url, testname, errordb)
                     break
                 else:
-                    print("waiting...")
+                    error.notify("waiting...", url, testname, errordb)
                     a = a+1
                     t.sleep(5)
             except:
@@ -225,7 +233,7 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.reset_password')
         error.save_and_quit(message, url, testname, driver, errordb)
 
-    print("[%s] OK - Reseting password for user: %s" % (str(__name__)+'.reset_password', fakeuser['email']))
+    error.notify("[%s] OK - Reseting password for user: %s" % (str(__name__)+'.reset_password', fakeuser['email']), url, testname, errordb)
     return
 
 
