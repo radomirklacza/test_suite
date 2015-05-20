@@ -14,6 +14,35 @@ def reject_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=No
     page.requests_action('reject_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
     return
 
+def validate_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+    error.notify("Validating project", url, testname, errordb)
+    page.requests_action('validate_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    return
+
+def reject_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+    error.notify("Rejecting project", url, testname, errordb)
+    page.requests_action('reject_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    return
+
+def delete_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, concurrent_users = 1):
+
+    print("Deleting user")
+    page.users_action('delete_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    return
+
+def upgrade_user_to_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
+
+    print("Upgrading user to PI")
+    page.users_action('upgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    return
+
+def downgrade_user_from_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
+
+    print("Downgrading user")
+    page.users_action('downgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    return
+
+
 def reject_institution(driver, url, piuser, institution, testname, errordb=None, datadb=None, users = 1):
     print("Rejecting institution")
 
@@ -57,22 +86,4 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
     else:
         print("SUCCESS: institution has been rejected")
 
-    return
-
-def delete_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, concurrent_users = 1):
-
-    print("Deleting user")
-    page.users_action('delete_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-    return
-
-def upgrade_user_to_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
-
-    print("Upgrading user to PI")
-    page.users_action('upgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
-    return
-
-def downgrade_user_from_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
-
-    print("Downgrading user")
-    page.users_action('downgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
     return

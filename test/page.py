@@ -130,9 +130,10 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
     url = url+'/portal/institution#requests'
     load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
 
-    if action == 'validate_user':
+    # set up the id of the button for the action (Reject or Validate)
+    if 'validate' in action:
         button_id = 'portal__validate'
-    elif action == 'reject_user':
+    elif 'reject' in action:
         button_id = 'portal__reject'
     else:
         message = "[%s] TEST FAILED with error: Unknown action" % (str(__name__)+'.'+action)
@@ -141,12 +142,17 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
     error.notify("%s: %s" % (action, fakeuser['email']))
 
     # find user on the list
+    if 'user' in action:
+        look_for = fakeuser['email']
+    elif 'project' in action:
+        look_for = fakeuser['project']['name']
+
     try:
         driver.wait = ui.WebDriverWait(driver, 20)
-        driver.find_element_by_xpath("//tr//td//a[text() = '%s']/../preceding-sibling::td//input[@type = 'checkbox']" % (fakeuser['email'])).click()
-
+        driver.find_element_by_xpath("//tr//td//*[starts-with(text(), '%s')]/../preceding-sibling::td//input[@type = 'checkbox']" % (look_for)).click()
+        # driver.find_element_by_xpath("//tr//td//a[text() = '%s']/../preceding-sibling::td//input[@type = 'checkbox']" % (look_for)).click()
     except:
-        message = "[%s] TEST FAILED with error: could not find user on the list: %s " % (str(__name__)+'.'+action, fakeuser['email'])
+        message = "[%s] TEST FAILED with error: could not find item on the list: %s " % (str(__name__)+'.'+action, look_for)
         error.save_and_quit(message, url, testname, driver, errordb)
 
     #... and click validate/reject button
