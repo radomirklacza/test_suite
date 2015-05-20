@@ -7,9 +7,9 @@ import selenium.webdriver.support.ui as ui
 
 def create(driver, url, project, testname, errordb, datadb, concurrent_users, by_piuser = False):
     print("Creating project")
-
+    page.load_main_page(driver, url, testname, errordb, datadb, concurrent_users)
     url += '/portal/project_request/'
-    page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'text_link', 'create_user', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'link_text', 'create_user', concurrent_users)
     try:
         p = project['name'] + "_" + str(t.time())
         print p

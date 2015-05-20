@@ -130,7 +130,8 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
     # TODO replace with load() - what text is expected?
     try:
         error.notify("Validating user with link: %s" % link, url, testname, errordb)
-        driver.get(link)
+        # TODO it is not checking for proper user validation
+        page.load(driver, link, testname, errordb, datadb, "//h3[text()='Signup request confirmed.']", 'xpath', 'user_validation_link', users)
         driver.get('https://portal.onelab.eu/')
     except:
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.create')

@@ -5,7 +5,7 @@ import influx
 import user
 
 #this function only to load portal main page
-def load(driver, url, testname, errodb, datadb, expected_text, expected_type, page_id , users = 1 ):
+def load(driver, url, testname, errodb, datadb, expected_text, expected_type , info_tag, users):
     error.notify("Loading url: %s " % (url), url, testname, errodb)
 
     # wait at maximum 10 seconds, then raise an exception
@@ -21,13 +21,13 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, pa
     # waiting link to appear
     if expected_type == 'link_text':
         try:
-            #print("looking for: ", expected_text)
+            print("looking for: ", expected_text)
             driver.wait.until(lambda driver: driver.find_element_by_link_text(expected_text))
         except:
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
                 message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.load')
             else:
-                message = "[%s] TEST FAILED with error: I was not able to locate element: %s" % (str(__name__)+'.load', expected_text)
+                message = "[%s] TEST FAILED with error: Timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
             #error.save_error(driver, driver.page_source, testname)
             error.save_and_quit(message, url, testname, driver, errodb)
 
@@ -39,7 +39,7 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, pa
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
                 message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.load')
             else:
-                message = "[%s] TEST FAILED with error: I was not able to locate element: %s" % (str(__name__)+'.load', expected_text)
+                message = "[%s] TEST FAILED with error: Timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
             #error.save_error(driver, driver.page_source, testname)
             error.save_and_quit(message, url, testname, driver, errodb)
 
@@ -51,8 +51,8 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type, pa
     # save time measuremnts
     exec_time = datetime.datetime.now() - time
     if (datadb):
-        influx.savedata("load_time", exec_time.total_seconds(), datadb, url, testname, users)
-    error.notify("Time to open %s: %f [s]" % (url, exec_time.total_seconds()), url, testname, errodb)
+        influx.savedata("load_time_"+info_tag, exec_time.total_seconds(), datadb, url, testname, users)
+    error.notify("Time to load page: %s : %f [s]" % (url, exec_time.total_seconds()), url, testname, errodb)
 
     return
 
@@ -79,7 +79,7 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
     error.notify("Go to users management page", url, testname, errordb)
     url += '/portal/institution#users'
     search_for = "//input[@data-email='%s']" % (piuser['email'])
-    load(driver, url, testname, errordb, datadb, search_for, 'xpath', 'institution_users' , concurrent_users)
+    load(driver, url, testname, errordb, datadb, search_for, 'xpath', 'institution_users', concurrent_users)
 
     error.notify("Searching user: %s" % (fakeuser['email']), url, testname, errordb)
 
@@ -119,6 +119,64 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
         message = "[%s] TEST FAILED for action %s with portal error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message.text)
         error.save_and_quit(message, url, testname, driver, errordb)
     return
+
+def projects_action(action, driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
+
+    # define ID of button objects on the website
+    if action == 'delete_project':
+        button_id = 'deleteprojects'
+
+    # sign-in as PI
+    error.notify("Running action: %s" % action, url, testname, errordb)
+    user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, concurrent_users)
+
+    load_main_page(driver, url, testname, errordb, datadb, concurrent_users)
+
+    error.notify("Go to project management page", url, testname, errordb)
+    url += '/portal/institution#projects'
+
+    search_for = "//input[@class='project']"
+    load(driver, url, testname, errordb, datadb, search_for, 'xpath', 'institution_projects', concurrent_users)
+
+    error.notify("Searching project: %s" % (fakeuser['project']['name']), url, testname, errordb)
+
+    # find user on the list
+    try:
+        input_box = driver.wait.until(lambda driver: driver.find_element_by_xpath("//tr//td[contains(text(), '%s')]/preceding-sibling::td//input[@type = 'checkbox']" % (fakeuser['project']['name'])))
+        input_box.click()
+    except:
+        message = "[%s] TEST FAILED with error: I could not find project on the list: %s " % (str(__name__)+'.'+str(action), fakeuser['project']['name'])
+        error.save_and_quit(message, url, testname, driver, errordb)
+
+    # run action
+    try:
+        time = datetime.datetime.now()
+        driver.find_element_by_id(button_id).click()
+    except:
+        message = "[%s] TEST FAILED with error: I was not able to find and click button: %s" % (str(__name__)+'.'+str(action), button_id)
+        error.save_and_quit(message, url, testname, driver, errordb)
+
+    # Wait for results and handle JS popup message with result message
+    try:
+        driver.wait = ui.WebDriverWait(driver, 30)
+        js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']"))
+        # save time measuremnts
+        exec_time = datetime.datetime.now() - time
+        if (datadb):
+            influx.savedata("processing_time", exec_time.total_seconds(), datadb, url, testname, concurrent_users)
+    except:
+        message = "[%s] TEST FAILED with error: 30s was not enough to process request %s for project: %s " % (str(__name__)+'.'+str(action), str(action), fakeuser.project['name'])
+        error.save_and_quit(message, url, testname, driver, errordb)
+
+    if 'No action: User had no rights on:' in js_message.text:
+        error.notify('User was NOT PI, portal message: %s' % js_message.text)
+    elif 'Success:' in js_message.text:
+        error.notify("SUCCESS: Action: %s was completed successfully with portal message: '%s'" % (action, js_message.text), url, testname, errordb)
+    else:
+        message = "[%s] TEST FAILED for action %s with portal error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message.text)
+        error.save_and_quit(message, url, testname, driver, errordb)
+    return
+
 
 def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, datadb, users):
 
@@ -166,7 +224,7 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
     # response message handling
     try:
         driver.wait = ui.WebDriverWait(driver, 20)
-        js_status = driver.wait.until(lambda driver: driver.find_element_by_xpath("//tr//td//a[text() = '%s']/../following-sibling::td//span//font" % (fakeuser['email'])))
+        js_status = driver.wait.until(lambda driver: driver.find_element_by_xpath("//tr//td//*[starts-with(text(), '%s')]/../following-sibling::td//span//font" % (look_for)))
         # save time measuremnts
         exec_time = datetime.datetime.now() - time
         if (datadb):
@@ -185,5 +243,6 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
     return
 
 def load_main_page(driver, url, testname, errordb, datadb, concurrent_users):
-    load(driver, url, testname, errordb, datadb, "//*[contains(text(), 'Your projects and slices')]", 'xpath', 'main_page' , concurrent_users)
+    url += '/'
+    load(driver, url, testname, errordb, datadb, "//*[contains(text(), 'Your projects and slices')]", 'xpath','main_page', concurrent_users)
     return

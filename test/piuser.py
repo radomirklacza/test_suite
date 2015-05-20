@@ -5,18 +5,23 @@ import time as t
 
 ## validating user (we will validate fakeuser by piuser)
 def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
-    error.notify("Validating user", url, testname, errordb)
+    error.notify("Validating user %s" % fakeuser['email'], url, testname, errordb)
     page.requests_action('validate_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
     return
 
 def reject_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
-    error.notify("Rejecting user", url, testname, errordb)
+    error.notify("Rejecting user %s" % fakeuser['email'], url, testname, errordb)
     page.requests_action('reject_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
     return
 
 def validate_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
     error.notify("Validating project", url, testname, errordb)
     page.requests_action('validate_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    return
+
+def delete_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+    error.notify("Deleting project", url, testname, errordb)
+    page.projects_action('delete_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
     return
 
 def reject_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
