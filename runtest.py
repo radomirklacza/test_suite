@@ -17,6 +17,7 @@ def simpletest(fakeuser=None, piuser=None):
     if (fakeuser is None):
         fakeuser = config.fakeuser
 
+
     if (piuser is None):
         piuser = config.piuser
 
