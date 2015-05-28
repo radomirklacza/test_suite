@@ -1,6 +1,7 @@
 import influx
 import io
 import time as t
+import datetime
 
 #raise and exception and save error to db
 from setup import environment
@@ -10,7 +11,7 @@ def save_and_quit(message, url, testname, driver, errordb = None ):
     save_error(driver, testname)
     if (errordb):
         influx.saveerror("ERROR: " + str(message), errordb, url, testname)
-    print(message)
+    print(str(datetime.datetime.now()) +' - ' + message)
     environment.clean(driver)
     exit()
 
@@ -27,7 +28,7 @@ def save_error(driver, testname):
     return filename
 
 def notify(message, url = None, testname = None, errordb = None):
-    print(str(message))
+    print(str(datetime.datetime.now())  +' - ' + message)
     if (errordb):
         influx.saveerror("NOTIFY: " + str(message), errordb, url, testname)
     return

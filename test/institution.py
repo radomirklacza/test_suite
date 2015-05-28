@@ -54,7 +54,7 @@ def create(driver, url, testname, institution, fakeuser, errordb, datadb, concur
         error.save_and_quit(message, url, testname, driver, errordb)
 
     try:
-        driver.wait = ui.WebDriverWait(driver, 10)
+        driver.wait = ui.WebDriverWait(driver, 50)
         driver.wait.until(lambda driver: driver.find_elements_by_xpath("//*[contains(text(), 'Organization information received')]"))
     except:
         message = "[%s] TEST FAILED with error: I've not get proper after create-institution screen %s" % (str(__name__)+'.create', url)

@@ -3,20 +3,28 @@ import selenium.webdriver.support.ui as ui
 import error
 import influx
 import user
+import re
 
 #this function only to load portal main page
 def load(driver, url, testname, errodb, datadb, expected_text, expected_type , info_tag, users):
     error.notify("Loading url: %s " % (url), url, testname, errodb)
 
     # wait at maximum 10 seconds, then raise an exception
-    driver.wait = ui.WebDriverWait(driver, 20)
+    driver.wait = ui.WebDriverWait(driver, 40)
     time = datetime.datetime.now()
     try:
+        print(url)
+        driver.get('https://portal.onelab.eu')
+        print driver.current_url
         driver.get(url)
     except:
-        message = "[%s] TEST FAILED with error: I was not able to load page: %s" % (str(__name__)+'.load', url)
-        #error.save_error(driver, driver.page_source, testname)
-        error.save_and_quit(message, url, testname, driver, errodb)
+        try:
+            print "got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url)
+            driver.get(url)
+        except:
+            message = "[%s] TEST FAILED with error: I was not able to load page: %s" % (str(__name__)+'.load', url)
+            # error.save_error(driver, driver.page_source, testname)
+            error.save_and_quit(message, url, testname, driver, errodb)
 
     # waiting link to appear
     if expected_type == 'link_text':
@@ -26,10 +34,15 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type , i
         except:
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
                 message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.load')
+                error.save_and_quit(message, url, testname, driver, errodb)
             else:
-                message = "[%s] TEST FAILED with error: Timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
-            #error.save_error(driver, driver.page_source, testname)
-            error.save_and_quit(message, url, testname, driver, errodb)
+                try:
+                    print "got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url)
+                    driver.get(url)
+                except:
+                    message = "[%s] TEST FAILED with error: link find timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
+                    #error.save_error(driver, driver.page_source, testname)
+                    error.save_and_quit(message, url, testname, driver, errodb)
 
     elif expected_type == 'xpath':
         try:
@@ -38,10 +51,15 @@ def load(driver, url, testname, errodb, datadb, expected_text, expected_type , i
         except:
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
                 message = "[%s] TEST FAILED with Django error" % (str(__name__)+'.load')
+                error.save_and_quit(message, url, testname, driver, errodb)
             else:
-                message = "[%s] TEST FAILED with error: Timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
-            #error.save_error(driver, driver.page_source, testname)
-            error.save_and_quit(message, url, testname, driver, errodb)
+                try:
+                    print "got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url)
+                    driver.get(url)
+                except:
+                    message = "[%s] TEST FAILED with error: xpath find timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
+                    #error.save_error(driver, driver.page_source, testname)
+                    error.save_and_quit(message, url, testname, driver, errodb)
 
     else:
         error.notify("Could not identify type of searched element: %s " % (expected_type), url, testname, errodb)
@@ -101,7 +119,7 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
 
     # Wait for results and handle JS popup message with result message
     try:
-        driver.wait = ui.WebDriverWait(driver, 20)
+        driver.wait = ui.WebDriverWait(driver, 50)
         js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']"))
         # save time measuremnts
         exec_time = datetime.datetime.now() - time
@@ -158,7 +176,7 @@ def projects_action(action, driver, url, piuser, fakeuser, testname, errordb, da
 
     # Wait for results and handle JS popup message with result message
     try:
-        driver.wait = ui.WebDriverWait(driver, 30)
+        driver.wait = ui.WebDriverWait(driver, 50)
         js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']"))
         # save time measuremnts
         exec_time = datetime.datetime.now() - time
@@ -185,7 +203,8 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
 
     error.notify("Go to request page", url, testname, errordb)
 
-    url = url+'/portal/institution#requests'
+    url +='/portal/institution#requests'
+    print("This is url: %s" % url)
     load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
 
     # set up the id of the button for the action (Reject or Validate)
@@ -206,7 +225,7 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
         look_for = fakeuser['project']['name']
 
     try:
-        driver.wait = ui.WebDriverWait(driver, 20)
+        driver.wait = ui.WebDriverWait(driver, 50)
         driver.find_element_by_xpath("//tr//td//*[starts-with(text(), '%s')]/../preceding-sibling::td//input[@type = 'checkbox']" % (look_for)).click()
         # driver.find_element_by_xpath("//tr//td//a[text() = '%s']/../preceding-sibling::td//input[@type = 'checkbox']" % (look_for)).click()
     except:
@@ -223,7 +242,7 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
 
     # response message handling
     try:
-        driver.wait = ui.WebDriverWait(driver, 20)
+        driver.wait = ui.WebDriverWait(driver, 50)
         js_status = driver.wait.until(lambda driver: driver.find_element_by_xpath("//tr//td//*[starts-with(text(), '%s')]/../following-sibling::td//span//font" % (look_for)))
         # save time measuremnts
         exec_time = datetime.datetime.now() - time
@@ -233,13 +252,15 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
         message = "[%s] TEST FAILED with error: I was not able to get any message for 20 seconds" % (str(__name__)+'.'+action)
         error.save_and_quit(message, url, testname, driver, errordb)
 
-    if 'OK' or 'Rejected' in js_status.text:
+    if re.compile("^OK$").match(js_status.text.strip()):
+        message = "[%s] SUCESS to %s for user: %s" % (str(__name__)+'.'+action, action, fakeuser['email'])
+        error.notify(message, url, testname, errordb)
+    elif re.compile("^Rejected").match(js_status.text.strip()):
         message = "[%s] SUCESS to %s for user: %s" % (str(__name__)+'.'+action, action, fakeuser['email'])
         error.notify(message, url, testname, errordb)
     else:
-        message = "[%s] TEST FAILED with error: I got an error message from portal: %s" % (str(__name__)+'.'+action, js_status.text)
+        message = "[%s] TEST FAILED with error: for user %s I got an error message from portal: %s" % (str(__name__)+'.'+action, fakeuser['email'], js_status.text)
         error.save_and_quit(message, url, testname, driver, errordb)
-
     return
 
 def load_main_page(driver, url, testname, errordb, datadb, concurrent_users):

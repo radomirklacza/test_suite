@@ -5,22 +5,10 @@ config.py
 
 *.pyc
 
-statsmodule/
-
 multiplerun.py
 
 testing.py
 
 saved_pages/*
 
-test/*.pyc
-
-test/page.pyc
-
-test/user.pyc
-
-test/__init__.pyc
-
-test/page.pyc
-
-test/user.pyc
+runtest.py

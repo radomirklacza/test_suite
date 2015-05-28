@@ -27,11 +27,11 @@ def signin(driver, user,  paswd, url, testname, errodb=None, datadb=None, users=
     # wait for resluts
     try:
         # waiting 20 seconds until user login and get information about his slice list
-        driver.wait = ui.WebDriverWait(driver, 10)
+        driver.wait = ui.WebDriverWait(driver, 50)
         driver.wait.until(lambda driver: driver.find_elements_by_xpath("//*[contains(text(), 'Your projects and slices')]"))
         exec_time =  datetime.now() - time_now
     except:
-        driver.wait = ui.WebDriverWait(driver, 3)
+        driver.wait = ui.WebDriverWait(driver, 10)
         # check if login/password are correct
         if driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[text() = 'Your username and/or password were incorrect.']")):
             message = "[%s] TEST FAILED with error: I was NOT able to signn-in: %s (User or/and password incorrect)" % (str(__name__)+'.signin', url)
@@ -191,7 +191,7 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
         message = "[%s] TEST FAILED: could not find proper from to input email address, url: %s" % (str(__name__)+'.reset_password', url)
         error.save_and_quit(message, url, testname, driver, errordb)
 
-    driver.wait = ui.WebDriverWait(driver, 5)
+    driver.wait = ui.WebDriverWait(driver, 50)
     try:
         driver.wait.until(lambda driver: driver.find_element_by_xpath("//h3[text()='Welcome to the secured password reset wizard']"))
         message = None

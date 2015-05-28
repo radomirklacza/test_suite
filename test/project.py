@@ -25,7 +25,7 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
         error.save_and_quit(message, url, testname, driver, errordb)
 
     try:
-        driver.wait = ui.WebDriverWait(driver, 10)
+        driver.wait = ui.WebDriverWait(driver, 50)
         if by_piuser:
             driver.wait.until(lambda driver: driver.find_element_by_xpath("//h1[text()='Success']"))
         else:
