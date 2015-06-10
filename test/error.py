@@ -7,16 +7,17 @@ import datetime
 from setup import environment
 
 
-def save_and_quit(message, url, testname, driver, errordb = None ):
-    save_error(driver, testname)
-    if (errordb):
-        influx.saveerror("ERROR: " + str(message), errordb, url, testname)
+def save_and_quit(message, url, testname, driver, errordb = None, display = None ):
+    save_error(driver, testname, message, url, errordb)
     print(str(datetime.datetime.now()) +' - ' + message)
-    environment.clean(driver)
+    environment.clean(driver, display)
     exit()
 
-def save_error(driver, testname):
-
+def save_error(message, url, testname, driver, errordb = None):
+    # saving to influx
+    if (errordb):
+        influx.saveerror("ERROR: " + str(message), errordb, url, testname)
+    # saving screenshot
     dir = 'saved_pages/'
     filename = 'error_django_'+testname+'_'+str(t.time())
     f = io.open(dir+filename+'.html', 'wb')

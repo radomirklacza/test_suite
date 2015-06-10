@@ -4,59 +4,59 @@ import error
 import time as t
 
 ## validating user (we will validate fakeuser by piuser)
-def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+def validate_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1, display = None):
     error.notify("Validating user %s" % fakeuser['email'], url, testname, errordb)
-    page.requests_action('validate_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    page.requests_action('validate_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users, display)
     return
 
-def reject_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+def reject_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1, display = None):
     error.notify("Rejecting user %s" % fakeuser['email'], url, testname, errordb)
-    page.requests_action('reject_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    page.requests_action('reject_user', driver, url, piuser, fakeuser, testname, errordb, datadb, users, display)
     return
 
-def validate_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+def validate_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1, display = None):
     error.notify("Validating project", url, testname, errordb)
-    page.requests_action('validate_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    page.requests_action('validate_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users, display)
     return
 
-def delete_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+def delete_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1, display = None):
     error.notify("Deleting project", url, testname, errordb)
-    page.projects_action('delete_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    page.projects_action('delete_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users, display)
     return
 
-def reject_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1):
+def reject_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, users = 1, display = None):
     error.notify("Rejecting project", url, testname, errordb)
-    page.requests_action('reject_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users)
+    page.requests_action('reject_project', driver, url, piuser, fakeuser, testname, errordb, datadb, users, display)
     return
 
-def delete_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, concurrent_users = 1):
+def delete_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, concurrent_users = 1, display = None):
 
     print("Deleting user")
-    page.users_action('delete_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    page.users_action('delete_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display)
     return
 
-def upgrade_user_to_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
+def upgrade_user_to_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display = None):
 
     print("Upgrading user to PI")
-    page.users_action('upgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    page.users_action('upgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display)
     return
 
-def downgrade_user_from_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users):
+def downgrade_user_from_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display = None):
 
     print("Downgrading user")
-    page.users_action('downgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users)
+    page.users_action('downgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display)
     return
 
 
-def reject_institution(driver, url, piuser, institution, testname, errordb=None, datadb=None, users = 1):
+def reject_institution(driver, url, piuser, institution, testname, errordb=None, datadb=None, users = 1, display = None):
     print("Rejecting institution")
 
-    user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users)
+    user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users, display)
 
-    page.load_main_page(driver, url, testname, errordb, datadb, users)
+    page.load_main_page(driver, url, testname, errordb, datadb, users, display)
 
     url += '/portal/institution#requests'
-    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users)
+    page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users, display)
 
     print("Rejecting institution: %s" % (institution['name']))
 
@@ -66,19 +66,19 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
         exist = 1
     except:
         message = "[%s] TEST FAILED with error: could not find institution on the list: %s " % (str(__name__)+'.reject_institution', institution['name'])
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
 
     #... and click validate button
     try:
         driver.find_element_by_id('portal__reject').click()
     except:
         message = "I was not able to find and click 'Validate' button... something wrong"
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
 
     counter = 5
     while (exist==1) and (counter > 0):
         t.sleep(3)
-        page.load(driver, url, testname, errordb, datadb, '//h2[text() = \'From your authorities\']','xpath','pending_requests', users)
+        page.load(driver, url, testname, errordb, datadb, '//h2[text() = \'From your authorities\']','xpath','pending_requests', users, display)
         try:
             driver.find_element_by_xpath("//tr//td//b[text() = '%s']" % (institution['name']))
             counter-=1
@@ -87,7 +87,7 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
 
     if (exist):
         message = "[%s] TEST FAILED with error: FAILED: institution has NOT been rejected" % (str(__name__)+'.reject_institution')
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
     else:
         print("SUCCESS: institution has been rejected")
 

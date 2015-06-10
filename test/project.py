@@ -5,11 +5,11 @@ import influx
 import error
 import selenium.webdriver.support.ui as ui
 
-def create(driver, url, project, testname, errordb, datadb, concurrent_users, by_piuser = False):
+def create(driver, url, project, testname, errordb, datadb, concurrent_users, by_piuser = False, display = None):
     print("Creating project")
-    page.load_main_page(driver, url, testname, errordb, datadb, concurrent_users)
+    page.load_main_page(driver, url, testname, errordb, datadb, concurrent_users, display)
     url += '/portal/project_request/'
-    page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'link_text', 'create_project', concurrent_users)
+    page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'link_text', 'create_project', concurrent_users, display)
     try:
         p = project['name'] + "_" + str(t.time())
         print p
@@ -22,7 +22,7 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
         button.click()
     except:
         message = "[%s] TEST FAILED with error: I was not able to properly fill the form on: %s" % (str(__name__)+'.create', url)
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
 
     try:
         driver.wait = ui.WebDriverWait(driver, 50)
@@ -34,7 +34,7 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
         exec_time =  datetime.datetime.now() - time_now
     except:
         message = "[%s] TEST FAILED: processing new project creation failed for project: %s" % (str(__name__)+'.create', project['name'])
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
 
     if datadb:
         influx.savedata("project_create", exec_time.total_seconds(), datadb, url, testname, concurrent_users)

@@ -7,7 +7,7 @@ import influx
 import gemail
 
 
-def create(driver, url, testname, institution, fakeuser, errordb, datadb, concurrent_users):
+def create(driver, url, testname, institution, fakeuser, errordb, datadb, concurrent_users, display = None):
     print('Creating new institution')
 
     url += '/portal/join'
@@ -51,14 +51,14 @@ def create(driver, url, testname, institution, fakeuser, errordb, datadb, concur
         button.click()
     except:
         message = "[%s] TEST FAILED with error: I was not able to properly fill the form on: %s" % (str(__name__)+'.create', url)
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
 
     try:
         driver.wait = ui.WebDriverWait(driver, 50)
         driver.wait.until(lambda driver: driver.find_elements_by_xpath("//*[contains(text(), 'Organization information received')]"))
     except:
         message = "[%s] TEST FAILED with error: I've not get proper after create-institution screen %s" % (str(__name__)+'.create', url)
-        error.save_and_quit(message, url, testname, driver, errordb)
+        error.save_and_quit(message, url, testname, driver, errordb, display)
 
     exec_time = datetime.datetime.now() - time
 
