@@ -35,4 +35,4 @@ def influxdb(host, port, username, password, database):
 def clean(driv, dis = None):
     driv.close()
     if (dis):
-        dis.close()
+        dis.stop()
