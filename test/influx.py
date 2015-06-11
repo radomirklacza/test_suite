@@ -16,13 +16,13 @@ def savedata(action, execution_time, database, url, testname, users):
         #print "data sent to db: "
 
 #this function should save the results and errors into influxdb
-def saveerror(errmesage, database, url, testname):
+def saveerror(type, errmesage, database, url, testname, filename = None):
     if (database):
         data = [
             {
-                "points":[[errmesage, url, testname]],
+                "points":[[type, errmesage, url, testname, filename]],
                 "name": 'errors',
-                "columns":["error_message", "portal", "testname" ]
+                "columns":["error_type", "error_message", "portal", "testname", "error_file"]
             }
         ]
         #print(data)

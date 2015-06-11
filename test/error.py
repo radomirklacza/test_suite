@@ -14,9 +14,6 @@ def save_and_quit(message, url, testname, driver, errordb = None, display = None
     exit()
 
 def save_error(message, url, testname, driver, errordb = None):
-    # saving to influx
-    if (errordb):
-        influx.saveerror("ERROR: " + str(message), errordb, url, testname)
     # saving screenshot
     dir = 'saved_pages/'
     filename = 'error_django_'+testname+'_'+str(t.time())
@@ -26,10 +23,15 @@ def save_error(message, url, testname, driver, errordb = None):
     print("HTML File location with error: %s" % filename+'.html')
     driver.save_screenshot(dir+filename+'.png')
     print("HTML File location with error: %s" % filename+'.png')
+
+    # saving to influx
+    if (errordb):
+        influx.saveerror("FATAL", "ERROR: " + str(message), errordb, url, testname, filename)
+
     return filename
 
 def notify(message, url = None, testname = None, errordb = None):
     print(str(datetime.datetime.now())  +' - ' + message)
     if (errordb):
-        influx.saveerror("NOTIFY: " + str(message), errordb, url, testname)
+        influx.saveerror("NOTIFY", "NOTIFY: " + str(message), errordb, url, testname)
     return

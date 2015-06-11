@@ -219,7 +219,8 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
         element.click()
     except:
         message = "[%s] TEST FAILED: could not find proper from to input email address, url: %s" % (str(__name__)+'.reset_password', url)
-        error.save_and_quit(message, url, testname, driver, errordb, display)
+        filename = error.save_error(message, url, testname, driver, errordb)
+        return (False, message, filename)
 
     driver.wait = ui.WebDriverWait(driver, 50)
     try:
@@ -235,7 +236,8 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
         message = None
 
     if message:
-        error.save_and_quit(message, url, testname, driver, errordb, display)
+        filename = error.save_error(message, url, testname, driver, errordb)
+        return (False, message, filename)
 
     # TODO #1 - clean up the code needed - for now it is copy paste
     # confirm account with gmail
@@ -256,16 +258,18 @@ def reset_password(driver, url, fakeuser, testname, errordb, datadb, concurrent_
                 t.sleep(5)
     except:
         message = "[%s] TEST FAILED with error: I was not able to read email link." % (str(__name__)+'.reset_password')
-        error.save_and_quit(message,url, testname, driver, errordb, display)
+        filename = error.save_error(message, url, testname, driver, errordb)
+        return (False, message, filename)
 
     # TODO replace with load() - what text is expected?
     try:
         driver.get(link)
     except:
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.reset_password')
-        error.save_and_quit(message, url, testname, driver, errordb, display)
+        filename = error.save_error(message, url, testname, driver, errordb)
+        return (False, message, filename)
 
     error.notify("[%s] OK - Reseting password for user: %s" % (str(__name__)+'.reset_password', fakeuser['email']), url, testname, errordb)
-    return
+    return (True, "[%s] OK - Reseting password for user: %s"% (str(__name__)+'.reset_password', fakeuser['email']))
 
 
