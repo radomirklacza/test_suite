@@ -26,6 +26,7 @@ def saveerror(type, errmesage, database, url, testname, filename = None):
             }
         ]
         #print(data)
+
         database.write_points(data)
         #print "data sent to db: "
 
