@@ -216,7 +216,7 @@ def projects_action(action, driver, url, piuser, fakeuser, testname, errordb, da
         if (datadb):
             influx.savedata("processing_time", exec_time.total_seconds(), datadb, url, testname, concurrent_users)
     except:
-        message = "[%s] TEST FAILED with error: 30s was not enough to process request %s for project: %s " % (str(__name__)+'.'+str(action), str(action), fakeuser.project['name'])
+        message = "[%s] TEST FAILED with error: 50s was not enough to process request %s for project: %s " % (str(__name__)+'.'+str(action), str(action), fakeuser['project']['name'])
         filename = error.save_error(message, url, testname, driver, errordb)
         return (False, message, filename)
 
