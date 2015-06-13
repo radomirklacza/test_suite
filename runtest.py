@@ -48,48 +48,48 @@ def simpletest(fakeuser=None, piuser=None):
 
     test_status = []
 
-
-    #### CREATE USER TEST ####
-    testname['module'] = 'create_user'
-    user_create = test.user.create(driver, config.portal['url'], testname, fakeuser, fakeuser['institution'], errordb, datadb, concurrent_users, display=dis)
-    test_status.append({'module': testname['module'], 'action': 'user.create', 'status': user_create[0], 'message': user_create[1], 'filename': user_create[2] if user_create.__len__() > 2 else None})
-
-    if test_status[0]['status']:
-        test.user.logout(driver)
-        test.piuser.validate_user(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
-        test.user.logout(driver)
-    else:
-        fakeuser['email']= config.existuser['email']
-        fakeuser['password']= config.existuser['password']
-    testname['module'] = ''
-    #### END ####
-
-
-    #### Checking if user is PI and downgrade/upgrade process is working ####
-    testname['module'] = 'check_pi'
-    is_pi = test.user.is_pi(driver, config.portal['url'], fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
-    res = {'module': testname['module'], 'action': 'user.is_pi.check', 'status': is_pi[0], 'message': is_pi[1], 'filename': is_pi[2] if is_pi.__len__() > 2 else None}
-    print res
-    test_status.append(res)
-
-    if is_pi[0]:
-        test.user.logout(driver)
-        if is_pi[1]:
-            status = test.piuser.downgrade_user_from_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
-            test_status.append({'module': testname['module'], 'action': 'user.downgrade_from_pi','status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
-            test.user.logout(driver)
-            status = test.piuser.upgrade_user_to_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
-            test.user.logout(driver)
-            test_status.append({'module': testname['module'], 'action': 'user.upgrade_to_pi', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
-        else:
-            status = test.piuser.upgrade_user_to_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
-            test_status.append({'module': testname['module'], 'action': 'user.upgrade_to_pi', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
-            test.user.logout(driver)
-            status = test.piuser.downgrade_user_from_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
-            test_status.append({'module': testname['module'], 'action': 'user.downgrade_from_pi', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
-            test.user.logout(driver)
-    testname['module'] = ''
-    #### END ####
+    #
+    # #### CREATE USER TEST ####
+    # testname['module'] = 'create_user'
+    # user_create = test.user.create(driver, config.portal['url'], testname, fakeuser, fakeuser['institution'], errordb, datadb, concurrent_users, display=dis)
+    # test_status.append({'module': testname['module'], 'action': 'user.create', 'status': user_create[0], 'message': user_create[1], 'filename': user_create[2] if user_create.__len__() > 2 else None})
+    #
+    # if test_status[0]['status']:
+    #     test.user.logout(driver)
+    #     test.piuser.validate_user(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
+    #     test.user.logout(driver)
+    # else:
+    #     fakeuser['email']= config.existuser['email']
+    #     fakeuser['password']= config.existuser['password']
+    # testname['module'] = ''
+    # #### END ####
+    #
+    #
+    # #### Checking if user is PI and downgrade/upgrade process is working ####
+    # testname['module'] = 'check_pi'
+    # is_pi = test.user.is_pi(driver, config.portal['url'], fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
+    # res = {'module': testname['module'], 'action': 'user.is_pi.check', 'status': is_pi[0], 'message': is_pi[1], 'filename': is_pi[2] if is_pi.__len__() > 2 else None}
+    # print res
+    # test_status.append(res)
+    #
+    # if is_pi[0]:
+    #     test.user.logout(driver)
+    #     if is_pi[1]:
+    #         status = test.piuser.downgrade_user_from_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
+    #         test_status.append({'module': testname['module'], 'action': 'user.downgrade_from_pi','status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
+    #         test.user.logout(driver)
+    #         status = test.piuser.upgrade_user_to_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
+    #         test.user.logout(driver)
+    #         test_status.append({'module': testname['module'], 'action': 'user.upgrade_to_pi', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
+    #     else:
+    #         status = test.piuser.upgrade_user_to_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
+    #         test_status.append({'module': testname['module'], 'action': 'user.upgrade_to_pi', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
+    #         test.user.logout(driver)
+    #         status = test.piuser.downgrade_user_from_pi(driver, config.portal['url'], piuser, fakeuser, testname, errordb, datadb, concurrent_users, display=dis)
+    #         test_status.append({'module': testname['module'], 'action': 'user.downgrade_from_pi', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
+    #         test.user.logout(driver)
+    # testname['module'] = ''
+    # #### END ####
 
     #### TESTING PROJECT ####
     testname['module'] = 'test_project'

@@ -133,7 +133,7 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
     # Wait for results and handle JS popup message with result message
     try:
         driver.wait = ui.WebDriverWait(driver, 50)
-        js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']"))
+        js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']").text)
         # save time measuremnts
         exec_time = datetime.datetime.now() - time
         if (datadb):
@@ -143,12 +143,12 @@ def users_action(action, driver, url, piuser, fakeuser, testname, errordb, datad
         filename = error.save_error(message, url, testname, driver, errordb)
         return (False, message, filename)
 
-    if 'No action: User had no rights on:' in js_message.text:
-        error.notify('User was NOT PI, portal message: %s' % js_message.text)
-    elif 'Success:' in js_message.text:
-        error.notify("SUCCESS: Action: %s was completed successfully with portal message: '%s'" % (action, js_message.text), url, testname, errordb)
+    if 'No action: User had no rights on:' in js_message:
+        error.notify('User was NOT PI, portal message: %s' % js_message)
+    elif 'Success:' in js_message:
+        error.notify("SUCCESS: Action: %s was completed successfully with portal message: '%s'" % (action, js_message), url, testname, errordb)
     else:
-        message = "[%s] TEST FAILED for action %s with portal error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message.text)
+        message = "[%s] TEST FAILED for action %s with portal error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message)
         filename = error.save_error(message, url, testname, driver, errordb)
         return (False, message, filename)
 
@@ -210,7 +210,7 @@ def projects_action(action, driver, url, piuser, fakeuser, testname, errordb, da
     # Wait for results and handle JS popup message with result message
     try:
         driver.wait = ui.WebDriverWait(driver, 50)
-        js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']"))
+        js_message = driver.wait.until(lambda driver: driver.find_element_by_xpath("//span[@class='message']").text)
         # save time measuremnts
         exec_time = datetime.datetime.now() - time
         if (datadb):
@@ -220,12 +220,12 @@ def projects_action(action, driver, url, piuser, fakeuser, testname, errordb, da
         filename = error.save_error(message, url, testname, driver, errordb)
         return (False, message, filename)
 
-    if 'No action: User had no rights on:' in js_message.text:
-        error.notify('User was NOT PI, portal message: %s' % js_message.text)
-    elif 'Success:' in js_message.text:
-        error.notify("SUCCESS: Action: %s was completed successfully with portal message: '%s'" % (action, js_message.text), url, testname, errordb)
+    if 'No action: User had no rights on:' in js_message:
+        error.notify('User was NOT PI, portal message: %s' % js_message)
+    elif 'Success:' in js_message:
+        error.notify("SUCCESS: Action: %s was completed successfully with portal message: '%s'" % (action, js_message), url, testname, errordb)
     else:
-        message = "[%s] TEST FAILED for action %s with portal error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message.text)
+        message = "[%s] TEST FAILED for action %s with portal error message: '%s'" % (str(__name__)+'.'+str(action), str(action), js_message)
         filename = error.save_error(message, url, testname, driver, errordb)
         return (False, message, filename)
 
