@@ -6,7 +6,7 @@ import error
 import selenium.webdriver.support.ui as ui
 
 def create(driver, url, project, testname, errordb, datadb, concurrent_users, by_piuser = False, display = None):
-    print("Creating project")
+    error.notify("Creating project", url, testname, errordb)
 
     status = page.load_main_page(driver, url, testname, errordb, datadb, concurrent_users, display)
     if not status[0]:
@@ -20,7 +20,6 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
 
     try:
         p = project['name'] + "_" + str(t.time())
-        print p
         projectname = driver.find_element_by_name("project_name")
         projectname.send_keys(p)
         purpose = driver.find_element_by_name("purpose")
@@ -49,7 +48,7 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
     if datadb:
         influx.savedata("project.create", exec_time.total_seconds(), datadb, url, testname, concurrent_users)
 
-    print ("[%s] OK - Time to process process request: %f [s]" % (str(__name__)+'.create', exec_time.total_seconds()))
+    error.notify("[%s] OK - Time to process process request: %f [s]" % (str(__name__)+'.create', exec_time.total_seconds()), url, testname, errordb)
 
     return ('[%s] Test OK' % str(__name__)+'.create', 'project created successfully')
 

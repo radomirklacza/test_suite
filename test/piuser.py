@@ -29,21 +29,21 @@ def reject_project(driver, url, piuser, fakeuser, testname, errordb=None, datadb
 
 def delete_user(driver, url, piuser, fakeuser, testname, errordb=None, datadb=None, concurrent_users = 1, display = None):
 
-    print("Deleting user")
+    error.notify("Deleting user", url, testname, errordb)
     return page.users_action('delete_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display)
 
 def upgrade_user_to_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display = None):
 
-    print("Upgrading user to PI")
+    error.notify("Upgrading user to PI", url, testname, errordb)
     return page.users_action('upgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display)
 
 def downgrade_user_from_pi(driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display = None):
 
-    print("Downgrading user")
+    error.notify("Downgrading user", url, testname, errordb)
     return page.users_action('downgrade_user', driver, url, piuser, fakeuser, testname, errordb, datadb, concurrent_users, display)
 
 def reject_institution(driver, url, piuser, institution, testname, errordb=None, datadb=None, users = 1, display = None):
-    print("Rejecting institution")
+    error.notify("Rejecting institution", url, testname, errordb)
 
     user.signin(driver, piuser['email'], piuser['password'], url, testname, errordb, datadb, users, display)
 
@@ -52,7 +52,7 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
     url += '/portal/institution#requests'
     page.load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users, display)
 
-    print("Rejecting institution: %s" % (institution['name']))
+    error.notify("Rejecting institution: %s" % (institution['name']), url, testname, errordb)
 
     # find institution on the list
     try:
@@ -83,6 +83,6 @@ def reject_institution(driver, url, piuser, institution, testname, errordb=None,
         message = "[%s] TEST FAILED with error: FAILED: institution has NOT been rejected" % (str(__name__)+'.reject_institution')
         error.save_and_quit(message, url, testname, driver, errordb, display)
     else:
-        print("SUCCESS: institution has been rejected")
+        error.save_and_quit("SUCCESS: institution has been rejected", url, testname, driver, errordb, display)
 
     return

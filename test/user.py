@@ -131,7 +131,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
                     error.notify("validation link: %s " % link, url, testname, errordb)
                     break
                 else:
-                    print("waiting...")
+                    error.notify("waiting...", url, testname, errordb)
                     a = a+1
                     t.sleep(5)
             except:
@@ -147,7 +147,7 @@ def create(driver, url, testname, fakeuser, organisation, errordb=None, datadb=N
         error.notify("Validating user with link: %s" % link, url, testname, errordb)
         # TODO it is not checking for proper user validation
         page.load(driver, link, testname, errordb, datadb, "//h3[text()='Signup request confirmed.']", 'xpath', 'user_validation_link', users, display)
-        driver.get('https://portal.onelab.eu/')
+        driver.get('https://portal.fed4fire.eu/')
     except:
         message = "[%s] TEST FAILED with error: I was not able to confirm email link" % (str(__name__)+'.create')
         filename = error.save_error(message, url, testname, driver, errordb)

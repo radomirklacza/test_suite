@@ -16,7 +16,7 @@ def save_and_quit(message, url, testname, driver, errordb = None, display = None
 def save_error(message, url, testname, driver, errordb = None):
     # saving screenshot
     dir = 'saved_pages/'
-    filename = 'error_django_'+testname+'_'+str(t.time())
+    filename = 'error_django_'+testname['name']+'_'+str(t.time())
     f = io.open(dir+filename+'.html', 'wb')
     f.write((driver.page_source).encode('utf-8'))
     f.close()

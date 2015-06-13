@@ -8,7 +8,7 @@ import gemail
 
 
 def create(driver, url, testname, institution, fakeuser, errordb, datadb, concurrent_users, display = None):
-    print('Creating new institution')
+    error.notify('Creating new institution', url, testname, errordb)
 
     url += '/portal/join'
     page.load(driver, url, testname, errordb, datadb, 'terms and conditions.', 'link_text', 'main-page', concurrent_users)

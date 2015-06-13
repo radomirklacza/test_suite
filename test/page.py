@@ -14,12 +14,12 @@ def load(driver, url, testname, errordb, datadb, expected_text, expected_type , 
     time = datetime.datetime.now()
     try:
         print(url)
-        driver.get('https://portal.onelab.eu')
-        print driver.current_url
+        driver.get('https://portal.fed4fire.eu')
+        error.notify('current url:', driver.current_url, testname, errordb)
         driver.get(url)
     except:
         try:
-            print "got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url)
+            error.notify("got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url), url, testname, errordb)
             driver.get(url)
         except:
             message = "[%s] TEST FAILED with error: I was not able to load page: %s" % (str(__name__)+'.load', url)
@@ -30,7 +30,7 @@ def load(driver, url, testname, errordb, datadb, expected_text, expected_type , 
     # waiting link to appear
     if expected_type == 'link_text':
         try:
-            print("looking for: ", expected_text)
+            error.notify("looking for: %s " % expected_text, url, testname, errordb)
             driver.wait.until(lambda driver: driver.find_element_by_link_text(expected_text))
         except:
             if driver.find_elements_by_xpath("//*[contains(text(), 'Exception Type:')]"):
@@ -39,7 +39,7 @@ def load(driver, url, testname, errordb, datadb, expected_text, expected_type , 
                 return (False, message, filename)
             else:
                 try:
-                    print "got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url)
+                    error.notify("got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url),url, testname, errordb)
                     driver.get(url)
                 except:
                     message = "[%s] TEST FAILED with error: link find timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
@@ -56,7 +56,7 @@ def load(driver, url, testname, errordb, datadb, expected_text, expected_type , 
                 return (False, message, filename)
             else:
                 try:
-                    print "got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url)
+                    error.notify("got an exception, curent url: %s, desired url: %s" % (str(driver.current_url), url), url, testname, errordb)
                     driver.get(url)
                 except:
                     message = "[%s] TEST FAILED with error: xpath find timeout - I was not able to properly load page: %s (locate element: %s)" % (str(__name__)+'.load', url, expected_text)
@@ -247,7 +247,7 @@ def requests_action(action, driver, url, piuser, fakeuser, testname, errordb, da
     error.notify("Go to request page", url, testname, errordb)
 
     url +='/portal/institution#requests'
-    print("This is url: %s" % url)
+    error.notify("This is url: %s" % url, url, testname, errordb)
 
     status = load(driver, url, testname, errordb,datadb, '//h2[text() = \'From your authorities\']','xpath', 'pending_requests', users, display)
     if not status[0]:
