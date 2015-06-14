@@ -11,9 +11,9 @@ def load(driver, url, testname, errordb, datadb, expected_text, expected_type , 
 
     # wait at maximum 10 seconds, then raise an exception
     driver.wait = ui.WebDriverWait(driver, 40)
+    driver.set_script_timeout(5)
     time = datetime.datetime.now()
     try:
-        print(url)
         driver.get('https://portal.fed4fire.eu')
         error.notify('current url:', driver.current_url, testname, errordb)
         driver.get(url)

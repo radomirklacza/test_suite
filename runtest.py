@@ -93,9 +93,16 @@ def simpletest(fakeuser=None, piuser=None):
 
     #### TESTING PROJECT ####
     testname['module'] = 'test_project'
+    print '##################1'
+    print testname['module']
+    print '##################'
     status = test.user.signin(driver, fakeuser['email'], fakeuser['password'], config.portal['url'], testname, errordb, datadb, concurrent_users, display=dis)
     if status[0]:
         test_status.append({'module': testname['module'], 'action': 'signin.user', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
+        print '##################2'
+        print(testname['module'])
+        print(test_status)
+        print '##################'
         status = test.project.create(driver, config.portal['url'], fakeuser['project'], testname, errordb, datadb, concurrent_users, display=dis)
         test_status.append({'module': testname['module'], 'action': 'project.create', 'status': status[0], 'message': status[1], 'filename': status[2] if status.__len__() > 2 else None})
         test.user.logout(driver)
@@ -139,7 +146,8 @@ def simpletest(fakeuser=None, piuser=None):
     #         conn.commit()
     #     conn.close()
     for item in test_status:
-        inf.savestatus(testname, item['action'], item['status'], item['message'], item['filename'], errordb)
+        print testname
+        inf.savestatus(testname, item['module'], item['action'], item['status'], item['message'], item['filename'], errordb)
 
 
 if __name__ == "__main__":

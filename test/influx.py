@@ -25,11 +25,11 @@ def saveerror(type, errmesage, database, url, testname, filename = None):
         ]
         database.write_points(data)
 
-def savestatus(testname, action, status, message, filename, database):
+def savestatus(testname, module, action, status, message, filename, database):
     if (database):
         data = [
             {
-                "points":[[testname['name'], testname['unique'], testname['module'], action, status, message, filename,]],
+                "points":[[testname['name'], testname['unique'], module, action, status, message, filename,]],
                 "name": 'status',
                 "columns":["test_name", "test_unique", "test_module", "test_action", "status", "message", "error_filename"]
             }
