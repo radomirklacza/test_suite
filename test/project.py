@@ -14,7 +14,7 @@ def create(driver, url, project, testname, errordb, datadb, concurrent_users, by
 
     url += '/portal/project_request/'
 
-    status = page.load(driver, url, testname, errordb, datadb, 'Create/Join project', 'link_text', 'create_project', concurrent_users, display)
+    status = page.load(driver, url, testname, errordb, datadb, 'Create new Project', 'link_text', 'create_project', concurrent_users, display)
     if not status[0]:
         return status
 
